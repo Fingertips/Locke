@@ -1,0 +1,3 @@
+= Locke
+
+A simple utility to keep track of progress in a software project.
