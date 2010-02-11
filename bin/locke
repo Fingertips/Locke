@@ -2,5 +2,21 @@
 
 $:.unshift(File.expand_path('../../lib', __FILE__))
 
+require 'rubygems'
 require 'locke'
-Locke.run
+
+def pluralize(cardinality, singular, plural)
+  if cardinality == 1
+    "#{cardinality} #{singular}"
+  else
+    "#{cardinality} #{plural}"
+  end
+end
+
+repository_path = ARGV[0] || Dir.pwd
+repository = Locke::Subversion::Repository.new(repository_path)
+repository.changes.each_with_index do |changes, index|
+  message = ["Revision #{index+1}:"]
+  message << pluralize(changes[:added] + changes[:removed], 'change', 'changes')
+  puts message.join(' ')
+end
