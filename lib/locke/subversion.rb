@@ -10,14 +10,24 @@ module Locke
         @path = path
       end
       
-      def changes
-        if last_revision > 1
-          (2..last_revision).map do |revision|
-            self.class.count_changes(svn("diff -x -b --change #{revision} #{@path}"))
+      def each_change
+        if last_revision > 0
+          (1..last_revision).each do |revision|
+            begin
+              changes = self.class.count_changes(svn("diff -x -b --change #{revision} #{@path}"))
+            rescue Executioner::ProcessError
+              changes = {}
+            end
+            changes[:revision] = revision
+            yield changes
           end
-        else
-          []
         end
+      end
+      
+      def changes
+        changes = []
+        each_change { |change| changes << change }
+        changes
       end
       
       def last_revision
@@ -37,6 +47,7 @@ module Locke
       end
       
       def self.count_changes(input)
+        return {} if input.nil?
         input.split("\n").inject({:added => 0, :removed => 0}) do |changes, line|
           if %w(--- +++).include?(line[0,3])
             changes

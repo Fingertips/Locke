@@ -15,8 +15,8 @@ end
 
 repository_path = ARGV[0] || Dir.pwd
 repository = Locke::Subversion::Repository.new(repository_path)
-repository.changes.each_with_index do |changes, index|
-  message = ["Revision #{index+1}:"]
-  message << pluralize(changes[:added] + changes[:removed], 'change', 'changes')
+repository.each_change do |changes|
+  message = ["Revision #{changes[:revision]}:"]
+  message << pluralize(changes[:added].to_i + changes[:removed].to_i, 'change', 'changes')
   puts message.join(' ')
 end

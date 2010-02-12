@@ -19,10 +19,20 @@ describe "Locke::Subversion::Repository" do
   
   it "should return a list changes to the repository" do
     @repository.changes.should == [
-      {:added=>1, :removed=>0},
-      {:added=>1, :removed=>1},
-      {:added=>5, :removed=>1},
-      {:added=>1, :removed=>3}
+      {:revision => 1, :added=>0, :removed=>0},
+      {:revision => 2, :added=>1, :removed=>0},
+      {:revision => 3, :added=>1, :removed=>1},
+      {:revision => 4, :added=>5, :removed=>1},
+      {:revision => 5, :added=>1, :removed=>3}
     ]
+  end
+  
+  it "should accept blocks to iterate through changes" do
+    count = 0
+    @repository.each_change do |change|
+      count += 1
+      change.should.be.kind_of(Hash)
+    end
+    count.should == @repository.last_revision
   end
 end
